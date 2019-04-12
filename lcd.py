@@ -65,8 +65,9 @@ def refresh():
 
 # Here we just blink the screen background in a few colors with the "Hello World!" text
 pygame.font.init()
-defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',22)
-clockFont = pygame.font.Font('FreeMonoBold.ttf',27)
+#defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',22)
+defaultFont = pygame.font.Font('FreeMonoBold.ttf',23)
+clockFont = pygame.font.Font('FreeMonoBold.ttf',30)
 
 lcd.fill((127,127,127))
 lcd.blit(defaultFont.render("Hello World!", False, (0, 0, 0)),(0, 0))
@@ -160,11 +161,11 @@ while Run:
     surface = pygame.image.load('background.jpg')
     lcd.blit(surface,[0,0])
     text_height = defaultFont.size("0")[1] + 2
-    lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(0, 0))
-    lcd.blit(defaultFont.render("IP Wi-Fi : " + str(ipaddr('wlan0')), False, yellow),(0, text_height*1))
-    lcd.blit(defaultFont.render("CPU: " + str(cpu()) + "% | RAM: " + str(memuse()) + "%", False, orange),(0, text_height*2))
-    lcd.blit(defaultFont.render("Temp     : " + str(int(cputemp())) + "ºC" , False, white),(0, text_height*3))
-    lcd.blit(defaultFont.render("Uptime   : " + str(uptime()) , False, white),(0, text_height*4))
+    lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(margin, 0))
+    lcd.blit(defaultFont.render("IP Wi-Fi : " + str(ipaddr('wlan0')), False, yellow),(margin, text_height*1))
+    lcd.blit(defaultFont.render("CPU: " + str(cpu()) + "% | RAM: " + str(memuse()) + "%", False, orange),(margin, text_height*2))
+    lcd.blit(defaultFont.render("Temp     : " + str(int(cputemp())) + "ºC" , False, white),(margin, text_height*3))
+    lcd.blit(defaultFont.render("Uptime   : " + str(uptime()) , False, white),(margin, text_height*4))
 
     #Clock
     tn = time.strftime('%d/%m/%Y - %H:%M:%S',time.localtime())
