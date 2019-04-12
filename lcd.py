@@ -65,7 +65,8 @@ def refresh():
 
 # Here we just blink the screen background in a few colors with the "Hello World!" text
 pygame.font.init()
-defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',25)
+defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',22)
+clockFont = pygame.font.Font('FreeMonoBold.ttf',27)
 
 lcd.fill((127,127,127))
 lcd.blit(defaultFont.render("Hello World!", False, (0, 0, 0)),(0, 0))
@@ -120,12 +121,19 @@ def cputemp():
 
 
 #Buttons
+num_buttons = 4
 button_size = 96
 margin = 10
 button_top = surfaceSize[1] - button_size - margin
+button_center = int((surfaceSize[0] - ( (num_buttons*(button_size)) + ((num_buttons-1)*margin) ))/2)
+
+shutdownicon = pygame.image.load('shutdown.png')
+restarticon = pygame.image.load('restart.png')
+fbcpicon = pygame.image.load('fbcp.png')
+exiticon = pygame.image.load('exit.png')
 
 def button_lft(order):
-    return surfaceSize[0] - ((margin + button_size)*order)
+    return surfaceSize[0] - ((button_size*order) + (margin*(order-1)) + button_center)
 
 def buttonclick(pxl,order):
     if pxl[1] > button_lft(order) and pxl[1] < (button_lft(order)+button_size):
@@ -133,13 +141,14 @@ def buttonclick(pxl,order):
             return True
     return False
 
-
-# Main Loop
-
+#Colors
 orange = (255,103,0)
 yellow = (255,199,0)
+blue = (102,205,255)
+black = (0,0,0)
+white = (255,255,255)
 
-
+# Main Loop
 
 Run = True
 i = 0
@@ -148,22 +157,22 @@ y = 500
 
 while Run:
     
-    shutdownicon = pygame.image.load('shutdown.png')
-    restarticon = pygame.image.load('restart.png')
-    fbcpicon = pygame.image.load('fbcp.png')
-    exiticon = pygame.image.load('exit.png')
-    
-    surface = pygame.image.load('background.png')
+    surface = pygame.image.load('background.jpg')
     lcd.blit(surface,[0,0])
     text_height = defaultFont.size("0")[1] + 2
-    lcd.blit(defaultFont.render("IP Ethernet: " + str(ipaddr('eth0')), False,yellow),(0, 0))
-    lcd.blit(defaultFont.render("IP Wi-Fi   : " + str(ipaddr('wlan0')), False, yellow),(0, text_height*1))
-    lcd.blit(defaultFont.render("CPU        : " + str(cpu()) , False, yellow),(0, text_height*2))
-    lcd.blit(defaultFont.render("RAM        : " + str(memuse()) , False, yellow),(0, text_height*3))
-    lcd.blit(defaultFont.render("Temperature: " + str(cputemp()) , False, yellow),(0, text_height*4))
-    lcd.blit(defaultFont.render("Uptime     : " + str(uptime()) , False, yellow),(0, text_height*5))
+    lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(0, 0))
+    lcd.blit(defaultFont.render("IP Wi-Fi : " + str(ipaddr('wlan0')), False, yellow),(0, text_height*1))
+    lcd.blit(defaultFont.render("CPU: " + str(cpu()) + "% | RAM: " + str(memuse()) + "%", False, orange),(0, text_height*2))
+    lcd.blit(defaultFont.render("Temp     : " + str(int(cputemp())) + "ºC" , False, white),(0, text_height*3))
+    lcd.blit(defaultFont.render("Uptime   : " + str(uptime()) , False, white),(0, text_height*4))
+
+    #Clock
+    tn = time.strftime('%d/%m/%Y - %H:%M:%S',time.localtime())
+    clock_size = clockFont.size(tn)
+    lcd.blit(clockFont.render(tn, False, black),(int((surfaceSize[0]-clock_size[0])/2)+2,surfaceSize[1]-clock_size[1]-button_size-8))
+    lcd.blit(clockFont.render(tn, False, blue),(int((surfaceSize[0]-clock_size[0])/2),surfaceSize[1]-clock_size[1]-button_size-10))
     
-    
+    #Buttons
     lcd.blit(shutdownicon,[button_lft(1),button_top])
     lcd.blit(restarticon,[button_lft(2),button_top])
     lcd.blit(fbcpicon,[button_lft(3),button_top])
