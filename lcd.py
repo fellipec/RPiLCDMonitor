@@ -7,7 +7,7 @@
 # - a device to get input from it, e.g. /dev/input/touchscreen
 ##
 
-import pygame, time, evdev, select, math, psutil, socket, datetime, os
+import pygame, time, evdev, select, math, psutil, socket, datetime, os, signal
 
 # Very important: the exact pixel size of the TFT screen must be known so we can build graphics at this exact format
 surfaceSize = (480, 320)
@@ -150,11 +150,15 @@ black = (0,0,0)
 white = (255,255,255)
 
 # Main Loop
-
 Run = True
 i = 0
 x = 500
 y = 500
+
+def stop():
+    Run = False
+
+signal.signal(signal.SIGTERM,stop)
 
 while Run:
     
