@@ -207,7 +207,7 @@ while Run:
                     os.system('sudo reboot')  
                     Run = False             
                 elif buttonclick(pxl,1): #Shutdown
-                    os.system('sudo shutdown')
+                    os.system('sudo shutdown now')
                     Run = False
                 
     else:
