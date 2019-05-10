@@ -108,6 +108,11 @@ def uptime():
     raw_timedelta = datetime.timedelta(seconds=time.time() - psutil.boot_time())
     return datetime.timedelta(days=raw_timedelta.days,seconds=raw_timedelta.seconds)
 
+def uptimestr():
+    td = str(uptime())
+    timevalues = td.split(':', 2)
+    return "{:02d}:{:02d}:{:02d}".format(int(timevalues[0]),int(timevalues[1]),int(timevalues[2]))
+
 def cpu():
     return psutil.cpu_percent(interval=0, percpu=False)
 
@@ -158,25 +163,29 @@ y = 500
 def stop():
     Run = False
 
+#Exist on SIGTERM
 signal.signal(signal.SIGTERM,stop)
 
-while Run:
-    
-    surface = pygame.image.load('background.jpg')
-    lcd.blit(surface,[0,0])
-    text_height = defaultFont.size("0")[1] + 2
-    lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(margin, 0))
-    lcd.blit(defaultFont.render("IP Wi-Fi : " + str(ipaddr('wlan0')), False, yellow),(margin, text_height*1))
-    lcd.blit(defaultFont.render("CPU: " + str(cpu()) + "% | RAM: " + str(memuse()) + "%", False, orange),(margin, text_height*2))
-    lcd.blit(defaultFont.render("Temp     : " + str(int(cputemp())) + "ºC" , False, white),(margin, text_height*3))
-    lcd.blit(defaultFont.render("Uptime   : " + str(uptime()) , False, white),(margin, text_height*4))
+surface = pygame.image.load('background.jpg')
+text_height = defaultFont.size("0")[1] + 2   
 
-    #Clock
+while Run:
+
+    
+    lcd.blit(surface,[0,0])
+
+    #Clock    
     tn = time.strftime('%d/%m/%Y - %H:%M:%S',time.localtime())
     clock_size = clockFont.size(tn)
     lcd.blit(clockFont.render(tn, False, black),(int((surfaceSize[0]-clock_size[0])/2)+2,surfaceSize[1]-clock_size[1]-button_size-8))
     lcd.blit(clockFont.render(tn, False, blue),(int((surfaceSize[0]-clock_size[0])/2),surfaceSize[1]-clock_size[1]-button_size-10))
-    
+
+    #System Info
+    lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(margin, 0))
+    lcd.blit(defaultFont.render("IP Wi-Fi : " + str(ipaddr('wlan0')), False, yellow),(margin, text_height*1))
+    lcd.blit(defaultFont.render("CPU : " + "{:03d}".format(int(cpu())) + "% | RAM: " + "{:03d}".format(int(memuse())) + "%", False, orange),(margin, text_height*2))
+    lcd.blit(defaultFont.render("Temp: " + "{:02d}".format(int(cputemp())) + "ºC | " + "Uptime: " + uptimestr(), False, white),(margin, text_height*3))
+
     #Buttons
     lcd.blit(shutdownicon,[button_lft(1),button_top])
     lcd.blit(restarticon,[button_lft(2),button_top])
@@ -212,7 +221,6 @@ while Run:
                 
     else:
         time.sleep(1)
-
 
 #Clean for exit
 lcd.fill((0,0,0))
