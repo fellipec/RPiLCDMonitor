@@ -15,7 +15,7 @@ surfaceSize = (480, 320)
 # Note that we don't instantiate any display!
 pygame.init()
 
-# The pygame surface we are going to draw onto. 
+# The pygame surface we are going to draw onto.
 # /!\ It must be the exact same size of the target display /!\
 lcd = pygame.Surface(surfaceSize)
 
@@ -37,11 +37,11 @@ def getPixelsFromCoordinates(coords):
     # TODO check divide by 0!
     if tftDelta [0] < 0:
         x = float(tftAbsDelta [0] - coords [0] + tftEnd [0]) / float(tftAbsDelta [0]) * float(surfaceSize [1])
-    else:    
+    else:
         x = float(coords [0] - tftOrig [0]) / float(tftAbsDelta [1]) * float(surfaceSize [1])
     if tftDelta [1] < 0:
         y = float(tftAbsDelta [1] - coords [1] + tftEnd [1]) / float(tftAbsDelta [1]) * float(surfaceSize [0])
-    else:        
+    else:
         y = float(coords [1] - tftOrig [1]) / float(tftAbsDelta [0]) * float(surfaceSize [0])
     return (int(x), int(y))
 
@@ -60,25 +60,16 @@ def refresh():
     # Will not wait. Let the regular code wait for the draw
     #time.sleep(0.1)
 
-# Now we've got a function that can get the bytes from a pygame surface to the TFT framebuffer, 
-# we can use the usual pygame primitives to draw on our surface before calling the refresh function.
-
-# Here we just blink the screen background in a few colors with the "Hello World!" text
 pygame.font.init()
-#defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',22)
-defaultFont = pygame.font.Font('FreeMonoBold.ttf',23)
-clockFont = pygame.font.Font('FreeMonoBold.ttf',30)
-
-lcd.fill((127,127,127))
-lcd.blit(defaultFont.render("Hello World!", False, (0, 0, 0)),(0, 0))
-refresh()
-
+#defaultFont = pygame.font.Font('SourceCodePro-Bold.ttf',26)
+defaultFont = pygame.font.Font('FreeMonoBold.ttf',30)
+clockFont = pygame.font.Font('FreeMonoBold.ttf',36)
 
 # Get the stats
 def memuse():
-    # you can convert that object to a dictionary 
+    # you can convert that object to a dictionary
     dvm = dict(psutil.virtual_memory()._asdict())
-    return dvm['percent'] 
+    return dvm['percent']
 
 def ipaddrs():
     af_map = {
@@ -88,7 +79,7 @@ def ipaddrs():
     }
     adapters = dict()
     for nic, addrs in psutil.net_if_addrs().items():
-        addresses = list()       
+        addresses = list()
         for addr in addrs:
             if addr.family == socket.AF_INET:
                 addresses.append(addr.address)
@@ -109,9 +100,11 @@ def uptime():
     return datetime.timedelta(days=raw_timedelta.days,seconds=raw_timedelta.seconds)
 
 def uptimestr():
-    td = str(uptime())
-    timevalues = td.split(':', 2)
-    return "{:02d}:{:02d}:{:02d}".format(int(timevalues[0]),int(timevalues[1]),int(timevalues[2]))
+    upt = uptime()
+    hours, secs = divmod(upt.seconds,3600)
+    minutes, secs = divmod(secs,60)
+    hours = hours + upt.days * 24
+    return "{:02d}h{:02d}".format(hours,minutes)
 
 def cpu():
     return psutil.cpu_percent(interval=0, percpu=False)
@@ -129,7 +122,7 @@ def cputemp():
 #Buttons
 num_buttons = 4
 button_size = 96
-margin = 10
+margin = 5
 button_top = surfaceSize[1] - button_size - margin
 button_center = int((surfaceSize[0] - ( (num_buttons*(button_size)) + ((num_buttons-1)*margin) ))/2)
 
@@ -151,6 +144,7 @@ def buttonclick(pxl,order):
 orange = (255,103,0)
 yellow = (255,199,0)
 blue = (102,205,255)
+green = (0,204,0)
 black = (0,0,0)
 white = (255,255,255)
 
@@ -167,18 +161,18 @@ def stop():
 signal.signal(signal.SIGTERM,stop)
 
 surface = pygame.image.load('background.jpg')
-text_height = defaultFont.size("0")[1] + 2   
+text_height = defaultFont.size("0")[1] + 2
 
 while Run:
 
-    
+
     lcd.blit(surface,[0,0])
 
-    #Clock    
+    #Clock
     tn = time.strftime('%d/%m/%Y - %H:%M:%S',time.localtime())
     clock_size = clockFont.size(tn)
     lcd.blit(clockFont.render(tn, False, black),(int((surfaceSize[0]-clock_size[0])/2)+2,surfaceSize[1]-clock_size[1]-button_size-8))
-    lcd.blit(clockFont.render(tn, False, blue),(int((surfaceSize[0]-clock_size[0])/2),surfaceSize[1]-clock_size[1]-button_size-10))
+    lcd.blit(clockFont.render(tn, False, green),(int((surfaceSize[0]-clock_size[0])/2),surfaceSize[1]-clock_size[1]-button_size-10))
 
     #System Info
     lcd.blit(defaultFont.render("IP LAN   : " + str(ipaddr('eth0')), False,yellow),(margin, 0))
@@ -194,7 +188,7 @@ while Run:
 
     refresh()
 
-    #Touchscreen 
+    #Touchscreen
     event = Touchscreen.read_one()
     if event is not None:
         if event.type == evdev.ecodes.EV_ABS:
@@ -213,12 +207,12 @@ while Run:
                     os.system('./fbcp')
                     Run = False
                 elif buttonclick(pxl,2): #Restart
-                    os.system('sudo reboot')  
-                    Run = False             
+                    os.system('sudo reboot')
+                    Run = False
                 elif buttonclick(pxl,1): #Shutdown
                     os.system('sudo shutdown now')
                     Run = False
-                
+
     else:
         time.sleep(1)
 
